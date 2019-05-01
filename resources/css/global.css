@@ -1,0 +1,61 @@
+html, body { height: 100%; margin: 0; padding: 0;  width: 100%; }
+body { font-family: Arial; font-size: 13px; line-height: 1.5; }
+
+body.webgl { overflow: hidden; }
+
+#webGlCanvas  { font-family: 'Courier New'; font-size: 11px; height: 100%; width: 100%; }
+
+#webGlCanvas .button-container { position: absolute; text-align: center; top: 25px; width: 100%; }
+#webGlCanvas .button-container .button-list .button {
+	border: 2px solid white;
+	border-radius: 28px;
+	color: white;
+	cursor: pointer;
+	display: inline-block;
+	margin: 5px;
+	min-height: 28px;
+	min-width: 28px;
+	padding: 10px;
+	text-align: center;
+}
+
+#webGlCanvas .button-container .button-list .button .fa { line-height: 1.2; }
+#webGlCanvas .button-container .button-list .button .button-text { font-size: 2.5em; font-weight: 900; line-height: 1; }
+
+#webGlCanvas .infoBox {
+	background-color: black;
+	border: 1px solid white;
+	border-radius: 10px;
+	color: white;
+	display: none;
+	opacity: 0.8;
+	padding: 10px;
+	position: absolute;
+}
+
+#webGlCanvas .output { color: white; display: none; left: 25px; position: absolute; top: 100px; }
+
+#webGlCanvas .tags { color: white; font-family: 'Courier New'; font-size: 11px; padding-left: 40px; position: absolute; top: 25px; }
+#webGlCanvas .tags a { color: #AAAAFF; }
+#webGlCanvas .tags ul { padding-left: 10px; }
+
+.language-tag { color: #FFFFFF; cursor: pointer;  display: inline-block; font-size: 11px; padding: 0 2px; }
+.language-tag a { color: inherit; text-decoration: none; }
+.language-tag-orange { background-color: #FFAAAA; }
+.language-tag-blue { background-color: #AAAAFF; }
+
+
+
+
+
+@media (min-width: 768px) {
+	#webGlCanvas .output { display: block; }
+}
+
+
+/* DAT.GUI: overwrite styles */
+.dg.main, .dg.main .close-button { max-width: 800px; margin: 0 !important; }
+
+@media (max-width: 767px) {
+	.dg.main, .dg.main .close-button { width: 100% !important; }
+}
