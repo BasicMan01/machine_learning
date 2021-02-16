@@ -1,9 +1,9 @@
 // jshint esversion: 6
 
-import * as THREE from '../../../lib/threejs_119/build/three.module.js';
-import { GUI } from '../../../lib/threejs_119/examples/jsm/libs/dat.gui.module.js';
+import * as THREE from '../../../lib/threejs_125/build/three.module.js';
+import { GUI } from '../../../lib/threejs_125/examples/jsm/libs/dat.gui.module.js';
 
-import { OrbitControls } from '../../../lib/threejs_119/examples/jsm/controls/OrbitControls.js';
+import { OrbitControls } from '../../../lib/threejs_125/examples/jsm/controls/OrbitControls.js';
 
 
 (function(window) {
@@ -98,13 +98,13 @@ import { OrbitControls } from '../../../lib/threejs_119/examples/jsm/controls/Or
 		);
 
 		this.line = new THREE.Line(
-			new THREE.Geometry().setFromPoints(curve.getPoints(1)),
+			new THREE.BufferGeometry().setFromPoints(curve.getPoints(1)),
 			new THREE.LineBasicMaterial( { color: 0xFF00FF } )
 		);
 		this.scene.add(this.line);
 
 		for (let i = 0; i < data.length; ++i) {
-			let mesh = new THREE.Mesh(new THREE.Geometry(), material);
+			let mesh = new THREE.Mesh(new THREE.BufferGeometry(), material);
 
 			mesh.position.x = data[i][0];
 			mesh.position.y = data[i][1];
