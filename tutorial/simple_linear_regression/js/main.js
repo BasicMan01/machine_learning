@@ -1,9 +1,9 @@
 // jshint esversion: 6
 
-import * as THREE from '../../../lib/threejs_125/build/three.module.js';
-import { GUI } from '../../../lib/threejs_125/examples/jsm/libs/dat.gui.module.js';
+import * as THREE from 'three';
 
-import { OrbitControls } from '../../../lib/threejs_125/examples/jsm/controls/OrbitControls.js';
+import { GUI } from '../../../lib/threejs_138/examples/jsm/libs/lil-gui.module.min.js';
+import { OrbitControls } from '../../../lib/threejs_138/examples/jsm/controls/OrbitControls.js';
 
 
 (function(window) {
