@@ -1,35 +1,35 @@
 class SimpleLinearRegression {
 	constructor(data) {
-		this.data = data;
+		this._data = data;
 
-		this.sumX = 0;
-		this.sumY = 0;
-		this.sumSquareXY = 0;
-		this.sumSquareX = 0;
+		this._sumX = 0;
+		this._sumY = 0;
+		this._sumSquareXY = 0;
+		this._sumSquareX = 0;
 
-		for (let i = 0; i < this.data.length; ++i) {
-			this.sumX += this.data[i][0];
-			this.sumY += this.data[i][1];
+		for (let i = 0; i < this._data.length; ++i) {
+			this._sumX += this._data[i][0];
+			this._sumY += this._data[i][1];
 
-			this.sumSquareXY += this.data[i][0] * this.data[i][1];
-			this.sumSquareX += Math.pow(this.data[i][0], 2);
+			this._sumSquareXY += this._data[i][0] * this._data[i][1];
+			this._sumSquareX += Math.pow(this._data[i][0], 2);
 		}
 	}
 
 	getAverageX() {
-		return this.sumX / this.data.length;
+		return this._sumX / this._data.length;
 	}
 
 	getAverageY() {
-		return this.sumY / this.data.length;
+		return this._sumY / this._data.length;
 	}
 
 	getCovarianceXY() {
-		return this.sumSquareXY / this.data.length - this.getAverageX() * this.getAverageY();
+		return this._sumSquareXY / this._data.length - this.getAverageX() * this.getAverageY();
 	}
 
 	getVarianceX() {
-		return this.sumSquareX / this.data.length - Math.pow(this.getAverageX(), 2);
+		return this._sumSquareX / this._data.length - Math.pow(this.getAverageX(), 2);
 	}
 
 	getSlope() {
@@ -44,3 +44,5 @@ class SimpleLinearRegression {
 		return this.getSlope() * x + this.getInterceptY();
 	}
 }
+
+export default SimpleLinearRegression;

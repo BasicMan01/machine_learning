@@ -1,187 +1,168 @@
-// jshint esversion: 6
-
 import * as THREE from 'three';
 
-import { GUI } from '../../../lib/threejs_138/examples/jsm/libs/lil-gui.module.min.js';
-import { OrbitControls } from '../../../lib/threejs_138/examples/jsm/controls/OrbitControls.js';
+import { GUI } from '../../../lib/threejs_140/examples/jsm/libs/lil-gui.module.min.js';
+import { OrbitControls } from '../../../lib/threejs_140/examples/jsm/controls/OrbitControls.js';
+
+import SimpleLinearRegression from '../../../resources/js/SimpleLinearRegression.js';
 
 
-(function(window) {
-	let config = {
-		'CAMERA_FOV': 70,
-		'CAMERA_NEAR_PLANE': 0.1,
-		'CAMERA_FAR_PLANE': 500
-	};
-
-	let properties = {
-		'axesHelperVisible': true,
-		'gridHelperVisible': false,
-		'sphereRadius': 0.1,
-		'sphereWidthSegments': 12,
-		'sphereHeightSegments': 8,
-		'sphereMaterialColor': '#FFFF00'
-	};
-
-	// x -> y
-	let data = [
-		[2, 5],
-		[3, 5],
-		[1.5, 2.5],
-		[8, 6.4],
-		[9, 9],
-		[7, 8.2],
-		[4, 6.8],
-		[6, 7],
-		[5, 4],
-		[1, 3]
-	];
+document.addEventListener('DOMContentLoaded', () => {
+	(new App(document.getElementById('webGlCanvas')))();
+});
 
 
+class App {
+	constructor(canvas)	{
+		this._canvas = canvas;
 
-	let Main = function(canvas)	{
-		this.canvas = canvas;
+		// x -> y
+		this._data = [
+			[2, 5],
+			[3, 5],
+			[1.5, 2.5],
+			[8, 6.4],
+			[9, 9],
+			[7, 8.2],
+			[4, 6.8],
+			[6, 7],
+			[5, 4],
+			[1, 3]
+		];
 
-		this.camera = null;
-		this.controls = null;
-		this.gui = null;
-		this.renderer = null;
-		this.scene = null;
+		this._linearRegression = new SimpleLinearRegression(this._data);
+		this._dataPoints = [];
 
-		this.axesHelper = null;
-		this.gridHelper = null;
+		this._properties = {
+			'axesHelperVisible': true,
+			'gridHelperVisible': false,
+			'sphereRadius': 0.1,
+			'sphereWidthSegments': 12,
+			'sphereHeightSegments': 8,
+			'sphereMaterialColor': '#FFFF00'
+		};
 
-		this.linearRegression = new SimpleLinearRegression(data);
-		this.dataPoints = [];
-		this.line = null;
-	};
+		this._scene = new THREE.Scene();
 
-	Main.prototype.init = function() {
-		this.scene = new THREE.Scene();
+		this._camera = new THREE.PerspectiveCamera(70, this._getCameraAspect(), 0.1, 500);
+		this._camera.position.set(0, 0, 20);
 
-		this.camera = new THREE.PerspectiveCamera(config.CAMERA_FOV, this.getCameraAspect(), config.CAMERA_NEAR_PLANE, config.CAMERA_FAR_PLANE);
-		this.camera.position.set(0, 10, 20);
+		this._renderer = new THREE.WebGLRenderer({antialias: true});
+		this._renderer.setClearColor(0x000000, 1);
+		this._renderer.setPixelRatio(window.devicePixelRatio);
+		this._renderer.setSize(this._getCanvasWidth(), this._getCanvasHeight());
 
-		this.renderer = new THREE.WebGLRenderer({antialias: true});
-		this.renderer.setClearColor(0x000000, 1);
-		this.renderer.setPixelRatio(window.devicePixelRatio);
-		this.renderer.setSize(this.getCanvasWidth(), this.getCanvasHeight());
-
-		this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-
-		this.gui = new GUI({ width: 400 });
-		this.gui.close();
+		this._controls = new OrbitControls(this._camera, this._renderer.domElement);
 
 		// add renderer to the DOM-Tree
-		this.canvas.appendChild(this.renderer.domElement);
+		this._canvas.appendChild(this._renderer.domElement);
 
-		window.addEventListener('resize', this.onResizeHandler.bind(this), false);
+		window.addEventListener('resize', this._onResizeHandler.bind(this), false);
 
-		this.createGui();
-		this.createObject();
+		this._init();
+	}
 
-		this.render();
-	};
+	_init() {
+		this._createGui();
+		this._createObject();
 
-	Main.prototype.createObject = function() {
-		let material = new THREE.MeshBasicMaterial( { color: properties.sphereMaterialColor } );
+		this._render();
+	}
 
-		this.axesHelper = new THREE.AxesHelper(25);
-		this.scene.add(this.axesHelper);
+	_createObject() {
+		const material = new THREE.MeshBasicMaterial( { color: this._properties.sphereMaterialColor } );
 
-		this.gridHelper = new THREE.GridHelper(50, 50);
-		this.gridHelper.visible = properties.gridHelperVisible;
-		this.scene.add(this.gridHelper);
+		this._axesHelper = new THREE.AxesHelper(25);
+		this._scene.add(this._axesHelper);
 
-		let curve = new THREE.LineCurve(
-			new THREE.Vector3(0, this.linearRegression.getInterceptY()),
-			new THREE.Vector3(20, this.linearRegression.getY(20))
+		this._gridHelper = new THREE.GridHelper(50, 50);
+		this._gridHelper.visible = this._properties.gridHelperVisible;
+		this._scene.add(this._gridHelper);
+
+		const curve = new THREE.LineCurve(
+			new THREE.Vector3(0, this._linearRegression.getInterceptY()),
+			new THREE.Vector3(20, this._linearRegression.getY(20))
 		);
 
-		this.line = new THREE.Line(
+		const line = new THREE.Line(
 			new THREE.BufferGeometry().setFromPoints(curve.getPoints(1)),
 			new THREE.LineBasicMaterial( { color: 0xFF00FF } )
 		);
-		this.scene.add(this.line);
+		this._scene.add(line);
 
-		for (let i = 0; i < data.length; ++i) {
-			let mesh = new THREE.Mesh(new THREE.BufferGeometry(), material);
+		for (let i = 0; i < this._data.length; ++i) {
+			const mesh = new THREE.Mesh(new THREE.BufferGeometry(), material);
 
-			mesh.position.x = data[i][0];
-			mesh.position.y = data[i][1];
+			mesh.position.x = this._data[i][0];
+			mesh.position.y = this._data[i][1];
 
-			this.dataPoints.push(mesh);
-			this.scene.add(mesh);
+			this._dataPoints.push(mesh);
+			this._scene.add(mesh);
 		}
 
-		this.createGeometry();
-	};
+		this._createGeometry();
+	}
 
-	Main.prototype.createGeometry = function() {
-		let geometry = new THREE.SphereGeometry(
-			properties.sphereRadius,
-			properties.sphereWidthSegments,
-			properties.sphereHeightSegments
+	_createGeometry() {
+		const geometry = new THREE.SphereGeometry(
+			this._properties.sphereRadius,
+			this._properties.sphereWidthSegments,
+			this._properties.sphereHeightSegments
 		);
 
-		for (let i = 0; i < this.dataPoints.length; ++i) {
-			this.dataPoints[i].geometry.dispose();
-			this.dataPoints[i].geometry = geometry;
+		for (let i = 0; i < this._dataPoints.length; ++i) {
+			this._dataPoints[i].geometry.dispose();
+			this._dataPoints[i].geometry = geometry;
 		}
-	};
+	}
 
-	Main.prototype.createGui = function() {
-		let self = this;
+	_createGui() {
+		const gui = new GUI({ width: 400 });
 
-		this.gui.add(properties, 'axesHelperVisible').onChange(function(value) {
-			self.axesHelper.visible = value;
+		gui.add(this._properties, 'axesHelperVisible').onChange((value) => {
+			this._axesHelper.visible = value;
 		});
-		this.gui.add(properties, 'gridHelperVisible').onChange(function(value) {
-			self.gridHelper.visible = value;
-		});
-
-		let folderGeometry = this.gui.addFolder('Sphere Geometry');
-		folderGeometry.add(properties, 'sphereRadius', 0.1, 10).step(0.1).onChange(function(value) {
-			self.createGeometry();
-		});
-		folderGeometry.add(properties, 'sphereWidthSegments', 3, 64).step(1).onChange(function(value) {
-			self.createGeometry();
-		});
-		folderGeometry.add(properties, 'sphereHeightSegments', 2, 64).step(1).onChange(function(value) {
-			self.createGeometry();
+		gui.add(this._properties, 'gridHelperVisible').onChange((value) => {
+			this._gridHelper.visible = value;
 		});
 
-		let folderMaterial = this.gui.addFolder('Sphere Material');
-		folderMaterial.addColor(properties, 'sphereMaterialColor').onChange(function(value) {
-			let color = new THREE.Color(value);
+		const folderGeometry = gui.addFolder('Sphere Geometry');
+		folderGeometry.add(this._properties, 'sphereRadius', 0.1, 10).step(0.1).onChange((value) => {
+			this._createGeometry();
+		});
+		folderGeometry.add(this._properties, 'sphereWidthSegments', 3, 64).step(1).onChange((value) => {
+			this._createGeometry();
+		});
+		folderGeometry.add(this._properties, 'sphereHeightSegments', 2, 64).step(1).onChange((value) => {
+			this._createGeometry();
+		});
 
-			for (let i = 0; i < self.dataPoints.length; ++i) {
-				self.dataPoints[i].material.color = color;
+		const folderMaterial = gui.addFolder('Sphere Material');
+		folderMaterial.addColor(this._properties, 'sphereMaterialColor').onChange((value) => {
+			const color = new THREE.Color(value);
+
+			for (let i = 0; i < this._dataPoints.length; ++i) {
+				this._dataPoints[i].material.color = color;
 			}
 		});
-	};
 
-	Main.prototype.render = function() {
-		requestAnimationFrame(this.render.bind(this));
+		gui.close();
+	}
 
-		this.renderer.render(this.scene, this.camera);
-	};
+	_render() {
+		requestAnimationFrame(this._render.bind(this));
 
-	Main.prototype.getCanvasHeight = function() { return this.canvas.offsetHeight; };
-	Main.prototype.getCanvasWidth = function() { return this.canvas.offsetWidth; };
+		this._renderer.render(this._scene, this._camera);
+	}
 
-	Main.prototype.getCameraAspect = function() { return this.getCanvasWidth() / this.getCanvasHeight(); };
+	_getCanvasHeight() { return this._canvas.offsetHeight; }
+	_getCanvasWidth() { return this._canvas.offsetWidth; }
 
-	Main.prototype.onResizeHandler = function(event) {
-		this.camera.aspect = this.getCameraAspect();
-		this.camera.updateProjectionMatrix();
+	_getCameraAspect() { return this._getCanvasWidth() / this._getCanvasHeight(); }
 
-		this.renderer.setSize(this.getCanvasWidth(), this.getCanvasHeight());
-	};
+	_onResizeHandler(event) {
+		this._camera.aspect = this._getCameraAspect();
+		this._camera.updateProjectionMatrix();
 
-
-
-	let main = new Main(document.getElementById('webGlCanvas'));
-	document.addEventListener('DOMContentLoaded', function() {
-		main.init();
-	});
-}(window));
+		this._renderer.setSize(this._getCanvasWidth(), this._getCanvasHeight());
+	}
+}
