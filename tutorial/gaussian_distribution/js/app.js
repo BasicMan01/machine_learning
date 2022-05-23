@@ -5,7 +5,7 @@ import { OrbitControls } from '../../../lib/threejs_140/examples/jsm/controls/Or
 
 
 document.addEventListener('DOMContentLoaded', () => {
-	(new App(document.getElementById('webGlCanvas')));
+	(() => new App(document.getElementById('webGlCanvas')))();
 });
 
 

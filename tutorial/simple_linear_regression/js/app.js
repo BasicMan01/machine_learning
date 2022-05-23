@@ -7,7 +7,7 @@ import SimpleLinearRegression from '../../../resources/js/SimpleLinearRegression
 
 
 document.addEventListener('DOMContentLoaded', () => {
-	(new App(document.getElementById('webGlCanvas')));
+	(() => new App(document.getElementById('webGlCanvas')))();
 });
 
 
